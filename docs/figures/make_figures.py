@@ -200,6 +200,43 @@ def fig_rerank_ablation() -> None:
     plt.close(fig)
 
 
+def fig_judge_ablation() -> None:
+    """Second-judge fairness check: same records, scored by Claude vs OpenAI."""
+    cb = _agg("baseline_phaseA.json")
+    ca = _agg("report_phaseB.json")
+    try:
+        ob = _agg("baseline_phaseA_openai_judge.json")
+        oa = _agg("report_phaseB_openai_judge.json")
+    except FileNotFoundError:
+        print("  (skipping fig6: run `python -m eval.judge_ablation` first)")
+        return
+    claude_base = [_baseline_best(cb, m) for m in METRICS]
+    claude_agent = [ca.get(f"agent_{m}", 0.0) for m in METRICS]
+    openai_base = [_baseline_best(ob, m) for m in METRICS]
+    openai_agent = [oa.get(f"agent_{m}", 0.0) for m in METRICS]
+
+    x = range(len(METRICS))
+    w = 0.2
+    fig, ax = plt.subplots(figsize=(9.5, 4.8))
+    ax.bar([i - 1.5 * w for i in x], claude_base, w, label="Claude judge — baseline", color="#cdd5de")
+    ax.bar([i - 0.5 * w for i in x], claude_agent, w, label="Claude judge — agent", color=C_AGENT)
+    ax.bar([i + 0.5 * w for i in x], openai_base, w, label="OpenAI judge — baseline", color="#f1c1a9")
+    ax.bar([i + 1.5 * w for i in x], openai_agent, w, label="OpenAI judge — agent", color="#e07b39")
+    for xi, vals in zip(x, zip(claude_base, claude_agent, openai_base, openai_agent)):
+        for offset, v in zip((-1.5 * w, -0.5 * w, 0.5 * w, 1.5 * w), vals):
+            ax.text(xi + offset, v + 0.012, f"{v:.2f}", ha="center", va="bottom", fontsize=7)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(LABELS)
+    ax.set_ylim(0, 1.05)
+    ax.set_ylabel("RAGAS score")
+    ax.set_title("Second-judge fairness check: same answers, Claude vs OpenAI gpt-4o-mini (100p, n=40)")
+    ax.legend(loc="upper center", fontsize=8, ncol=4)
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(OUT / "fig6-judge-ablation.png", dpi=150)
+    plt.close(fig)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fig_main_results()
@@ -207,6 +244,7 @@ def main() -> None:
     fig_routes()
     fig_hedging()
     fig_rerank_ablation()
+    fig_judge_ablation()
     print("wrote figures to", OUT)
     for p in sorted(OUT.glob("*.png")):
         print(" -", p.name)

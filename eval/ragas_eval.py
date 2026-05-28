@@ -106,8 +106,14 @@ def _generate_questions(config: PipelineConfig, n: int = DEFAULT_N) -> list[dict
 # ----------------------------- RAGAS scoring -----------------------------
 def _ragas_score(
     records_by_mode: dict[str, list[dict]],
+    llm=None,
 ) -> dict[str, dict[str, list[float]]]:
-    """Run RAGAS 4 metrics per mode; return {mode: {metric: per_question_scores}}."""
+    """Run RAGAS 4 metrics per mode; return {mode: {metric: per_question_scores}}.
+
+    `llm` is an optional pre-built LangchainLLMWrapper. Default (None) builds the
+    Claude judge used everywhere else; passing a different wrapper enables judge
+    ablation (e.g., OpenAI as a second judge — see eval/judge_ablation.py).
+    """
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     from datasets import Dataset
@@ -143,11 +149,12 @@ def _ragas_score(
         def embed_documents(self, texts: list[str]) -> list[list[float]]:
             return self._inner.embed_documents(texts)
 
-    llm = LangchainLLMWrapper(
-        ChatAnthropic(
-            model=RAGAS_LLM_MODEL, temperature=0, max_tokens=RAGAS_LLM_MAX_TOKENS
+    if llm is None:
+        llm = LangchainLLMWrapper(
+            ChatAnthropic(
+                model=RAGAS_LLM_MODEL, temperature=0, max_tokens=RAGAS_LLM_MAX_TOKENS
+            )
         )
-    )
     embed = LangchainEmbeddingsWrapper(_StrModelEmbeddings(RAGAS_EMBED_MODEL))
     metrics = [faithfulness, answer_relevancy, context_recall, context_precision]
     metric_names = ["faithfulness", "answer_relevancy", "context_recall", "context_precision"]

@@ -189,13 +189,43 @@ A baseline answer relevancy of 0.299 (global 0.044) invites suspicion. Decomposi
 
 Two conclusions follow. First, the low scores are a \emph{genuine retrieval failure}: community summaries and 1-hop subgraphs do not contain the specific numbers the questions ask, so the model correctly declines --- exactly the gap the agent's passage retrieval (with rerank) closes (a fair, substantive improvement). Second, RAGAS scores a noncommittal answer as \textbf{0} regardless of grounding, so the \emph{magnitude} of the answer-relevancy gap (+0.576) is \emph{amplified} by this penalty. \textbf{Recommendation:} lead with context recall (+0.646) and context precision (+0.687) --- they measure retrieval directly and are independent of answer phrasing --- and present answer relevancy as corroborating, with the noncommittal caveat stated explicitly.
 
+\subsection{Second-judge fairness check (Claude vs.\ OpenAI gpt-4o-mini)}
+A single LLM-as-judge --- especially when the judge shares a model family with the system under test --- invites a self-preference concern. To isolate the judge variable cleanly, we held the answers and retrieved contexts fixed and re-scored the \emph{same} baseline and agent records with \texttt{gpt-4o-mini} (a different model family). The agent was not re-run, so any score change is attributable to the judge alone.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig6-judge-ablation.png}
+\caption{Second-judge fairness check: same answers, scored by Claude vs.\ OpenAI gpt-4o-mini (100p, $n{=}40$).}
+\label{fig:judge}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Cross-judge comparison. Agent score (each judge) and agent$-$baseline-best $\Delta$ (each judge).}
+\label{tab:judge}
+\begin{tabular}{lcccc}
+\toprule
+Metric & $\Delta$ (Claude) & $\Delta$ (OpenAI) & Agent (Claude) & Agent (OpenAI) \\
+\midrule
+Faithfulness      & +0.019 & \textbf{+0.090} & 0.872 & 0.873 \\
+Answer relevancy  & +0.576 & +0.544          & 0.875 & 0.791 \\
+Context recall    & +0.646 & +0.454          & 0.854 & 0.954 \\
+Context precision & +0.687 & +0.323          & 0.887 & 0.973 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Three observations.} (1) \emph{All four metrics preserve sign} under both judges --- agent $\gg$ baseline is judge-robust. (2) \emph{No evidence of Claude self-preference on the agent side.} On three of four metrics OpenAI rates the agent \emph{higher} than Claude does (context recall $0.85\to 0.95$, context precision $0.89\to 0.97$, faithfulness essentially identical). The single place Claude is slightly more enthusiastic toward agent answers is answer relevancy ($0.875$ vs.\ $0.791$), but the gap-vs-baseline magnitudes nearly match ($+0.576$ vs.\ $+0.544$), so the relative claim survives. (3) \emph{Context-metric magnitudes shrink under OpenAI} because OpenAI is more generous to the baseline's retrieval (recall $0.21\to 0.50$; precision $0.20\to 0.65$). The agent advantage stays strongly positive ($+0.45$ recall, $+0.32$ precision), but absolute magnitudes are judge-dependent --- another reason to lead with the relative ordering rather than the raw numbers.
+
+The most cross-judge-consistent metric is \textbf{answer relevancy} ($\Delta$ 0.576 vs.\ 0.544, $\sim$5\% spread). Combined with the leading-context-metrics recommendation from \S6.1, the most defensible reviewer-facing bundle is \{context recall, context precision, answer relevancy\}: the first two are phrasing-independent, the third is now also judge-robust. Outputs: \texttt{data/eval/\{baseline\_phaseA, report\_phaseB\}\_openai\_judge.json}. Reproduce: \texttt{python -m eval.judge\_ablation}.
+
 \subsection{A methodological lesson: silent truncation at scale}
 \label{sec:truncation}
 The entity/relation extractor capped LLM output at 2{,}000 tokens. On 100 full-text papers, many extractions exceeded this and were truncated mid-JSON, failing to parse and contributing \emph{zero} entities/relations --- roughly half the papers in an initial 100-paper run. Raising the cap to 8{,}000 tokens cut the failure rate from $\sim$50\% to $\sim$1\% and grew the graph from 503/532 (50p, old cap) to 1{,}342/1{,}489 (100p). Consequently the 50$\to$100 comparison conflates two changes (more papers \emph{and} the truncation fix); we flag this rather than hide it. The within-corpus agent-vs-baseline comparison at each scale is unaffected, since both systems read the same graph. The lesson: an output cap is a silent failure mode for structured extraction --- validate parse-success rate, not just that the pipeline ran.
 
 \section{Limitations}
 \begin{itemize}
-  \item \textbf{Single judge, same model family.} Answers and the RAGAS judge are both \texttt{claude-haiku}, risking self-preference bias and inflating absolute scores. The bias applies to both systems, but absolute numbers should be read with caution; a second, different judge would strengthen the claim.
+  \item \textbf{Two judges, not an ensemble.} Production scoring uses \texttt{claude-haiku}; \S6.2 cross-checks with \texttt{gpt-4o-mini} (different model family) and shows agent $\gg$ baseline is judge-robust on all four metrics. Absolute magnitudes are judge-dependent (OpenAI is more generous to the baseline's retrieval, e.g.\ context recall $0.21\to 0.50$), so we lead with the relative ordering. A broader judge ensemble would tighten the absolute-magnitude estimates further.
   \item \textbf{Noncommittal penalty} amplifies the answer-relevancy gap; we mitigate by leading with context metrics.
   \item \textbf{$n{=}40$.} Milestone-level deltas ($\pm$0.05--0.10) are within run-to-run variance; only the large, consistent gaps are treated as robust.
   \item \textbf{Single domain.} The corpus is RAG-only (by design, for entity connectivity); cross-domain generalization is untested.

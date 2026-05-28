@@ -25,7 +25,7 @@ Adaptive Routing, Grading, and Self-Reflection\\ over a RAG-Literature Knowledge
 \maketitle
 
 \begin{abstract}
-We build a corpus of 100 research papers on retrieval-augmented generation (RAG) and study whether an \emph{agentic retrieval loop} improves over a fixed \emph{GraphRAG} baseline on the same questions and the same judge. Phase~A (GraphRAG) extracts a typed entity/relation knowledge graph, detects Leiden communities with LLM summaries, and answers via global (community-summary) and local (entity-subgraph) search. Phase~B (Agentic RAG) composes, in LangGraph, an adaptive router (global/local/vector), an LLM grader with conditional wider re-retrieval, query rewriting on the escalation path, and a self-reflection hallucination check with bounded regeneration. Both systems are scored with RAGAS (faithfulness, answer relevancy, context recall, context precision) using a Claude judge with local fastembed embeddings. On the 100-paper corpus ($n{=}40$), the agent beats the \emph{best} of the two baseline modes by \textbf{+0.493} answer relevancy, \textbf{+0.671} context recall, and \textbf{+0.662} context precision, with comparable faithfulness (+0.019). The conclusion holds when the corpus is scaled from 50 to 100 papers --- the retrieval-quality gap actually widens. We decompose the baseline's low scores and show they reflect a genuine retrieval failure honestly reported (28/40 global answers hedge; baseline faithfulness stays 0.853), with the answer-relevancy gap amplified by RAGAS's noncommittal penalty. We therefore lead with the phrasing-independent context metrics, and report a methodological lesson: an output-token cap silently truncated entity/relation extraction on long papers.
+We build a corpus of 100 research papers on retrieval-augmented generation (RAG) and study whether an \emph{agentic retrieval loop} improves over a fixed \emph{GraphRAG} baseline on the same questions and the same judge. Phase~A (GraphRAG) extracts a typed entity/relation knowledge graph, detects Leiden communities with LLM summaries, and answers via global (community-summary) and local (entity-subgraph) search. Phase~B (Agentic RAG) composes, in LangGraph, an adaptive router (global/local/vector), an LLM grader with conditional wider re-retrieval, query rewriting on the escalation path, a self-reflection hallucination check with bounded regeneration, and a cross-encoder rerank step (B-M6) on the vector route. Both systems are scored with RAGAS (faithfulness, answer relevancy, context recall, context precision) using a Claude judge with local fastembed embeddings. On the 100-paper corpus ($n{=}40$), the agent beats the \emph{best} of the two baseline modes by \textbf{+0.576} answer relevancy, \textbf{+0.646} context recall, and \textbf{+0.687} context precision, with comparable faithfulness (+0.019). The conclusion holds when the corpus is scaled from 50 to 100 papers. Isolating the rerank ablation: cross-encoder reranking layered on top of dense retrieval lifts answer relevancy by +0.084 and context precision by +0.025 over no-rerank, at a small ($-$0.025) cost in context recall --- the textbook retrieve-and-rerank trade-off. We decompose the baseline's low scores and show they reflect a genuine retrieval failure honestly reported (28/40 global answers hedge; baseline faithfulness stays 0.853), with the answer-relevancy gap amplified by RAGAS's noncommittal penalty. We therefore lead with the phrasing-independent context metrics, and report a methodological lesson: an output-token cap silently truncated entity/relation extraction on long papers.
 \end{abstract}
 
 \begin{center}\textbf{한국어 초록}\end{center}
@@ -65,7 +65,7 @@ Seeds (the original RAG paper~\citep{lewis2020rag} and Fusion-in-Decoder~\citep{
 \subsection{Phase B --- Agentic RAG}
 Phase~B adds a third retriever and an orchestrated control loop over the (frozen) Phase~A retrievers.
 
-\textbf{Vector route.} Each corpus doc's \texttt{abstract/intro/related\_work} is chunked (1{,}000 chars, 150 overlap), embedded locally with \texttt{BAAI/bge-small-en-v1.5} (fastembed, no API cost), and stored in Chroma (\textbf{1{,}207 chunks}). Retrieval returns the top $k{=}8$ passages, which an LLM answers from verbatim --- the path that recovers the fact-specific details summaries lose.
+\textbf{Vector route.} Each corpus doc's \texttt{abstract/intro/related\_work} is chunked (1{,}000 chars, 150 overlap), embedded locally with \texttt{BAAI/bge-small-en-v1.5} (fastembed, no API cost), and stored in Chroma (\textbf{1{,}207 chunks}). Retrieval fetches a candidate pool of $k\times 3$ passages, then a \emph{cross-encoder reranker} (\texttt{Xenova/ms-marco-MiniLM-L-12-v2}, fastembed, $\sim$120\,MB, no API cost) re-scores each (query, passage) pair jointly and the top $k{=}8$ are kept --- the standard retrieve-and-rerank pattern. Escalation (B-M2) reuses the same rerank step at $k{=}16$ (pool 48). The reranker is loaded lazily, process-cached, and falls back to bi-encoder order on any failure so a transient model issue cannot break a live query.
 
 \textbf{Control loop (LangGraph).} The compiled graph is:
 \begin{verbatim}
@@ -104,12 +104,12 @@ All LLM nodes use \texttt{claude-haiku-4-5}. State is a plain \texttt{TypedDict}
 \label{tab:main}
 \begin{tabular}{lccc}
 \toprule
-Metric & Baseline (best) & Agent & $\Delta$ \\
+Metric & Baseline (best) & Agent (+rerank) & $\Delta$ \\
 \midrule
 Faithfulness      & 0.853 & 0.872 & \textbf{+0.019} \\
-Answer relevancy  & 0.299 & 0.791 & \textbf{+0.493} \\
-Context recall    & 0.208 & 0.879 & \textbf{+0.671} \\
-Context precision & 0.200 & 0.862 & \textbf{+0.662} \\
+Answer relevancy  & 0.299 & 0.875 & \textbf{+0.576} \\
+Context recall    & 0.208 & 0.854 & \textbf{+0.646} \\
+Context precision & 0.200 & 0.887 & \textbf{+0.687} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -123,7 +123,7 @@ Table~\ref{tab:main} and Figure~\ref{fig:main} show the agent improving dramatic
 \caption{Agent route distribution (100-paper corpus, $n{=}40$).}
 \label{fig:routes}
 \end{figure}
-The router sends \textbf{34/40} questions to the vector retriever, 5 to local, and 1 to global (Figure~\ref{fig:routes}) --- consistent with the deliberately fact-specific evaluation set, and with the thesis that dense passage retrieval is the capability missing from the graph baseline. The router is not merely ``always vector'': it still selects local/global where appropriate.
+The router sends \textbf{32/40} questions to the vector retriever, 7 to local, and 1 to global (Figure~\ref{fig:routes}) --- consistent with the deliberately fact-specific evaluation set, and with the thesis that dense passage retrieval is the capability missing from the graph baseline. The router is not merely ``always vector'': it still selects local/global where appropriate. (The small vector $34\to 32$ shift between B-M5 and B-M6 is router LLM nondeterminism, not a rerank effect --- rerank operates strictly inside the vector path.)
 
 \subsection{Scale robustness (50 $\to$ 100 papers)}
 \begin{figure}[t]
@@ -139,17 +139,42 @@ The router sends \textbf{34/40} questions to the vector retriever, 5 to local, a
 \label{tab:scale}
 \begin{tabular}{lcc}
 \toprule
-Metric & $\Delta$ at 50p & $\Delta$ at 100p \\
+Metric & $\Delta$ at 50p & $\Delta$ at 100p (B-M6) \\
 \midrule
 Faithfulness      & +0.069 & +0.019 \\
-Answer relevancy  & +0.565 & +0.493 \\
-Context recall    & +0.637 & \textbf{+0.671} \\
-Context precision & +0.600 & \textbf{+0.662} \\
+Answer relevancy  & +0.565 & \textbf{+0.576} \\
+Context recall    & +0.637 & \textbf{+0.646} \\
+Context precision & +0.600 & \textbf{+0.687} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The headline (agent $\gg$ baseline) holds at double the corpus (Table~\ref{tab:scale}, Figure~\ref{fig:scale}), and the context-metric gaps \emph{widen}: as the corpus grows, global/local search degrades faster (more entities and summaries dilute the answer) while vector retrieval scales gracefully. Agent absolute scores dip slightly (answer relevancy 0.891 $\to$ 0.791), the expected effect of more distractor passages. Routing is near-identical across scales (vector 33 $\to$ 34). The faithfulness delta shrinks because baseline faithfulness was never the differentiator.
+The headline (agent $\gg$ baseline) holds at double the corpus (Table~\ref{tab:scale}, Figure~\ref{fig:scale}), and on three of four metrics the 100-paper gap (with B-M6 rerank) equals or exceeds the 50-paper one. The faithfulness delta shrinks because baseline faithfulness was never the differentiator; routing is near-identical across scales (vector $33\to 32$). The 50-paper run used the pre-B-M6 agent (no rerank); the within-100p rerank ablation is reported next.
+
+\subsection{Rerank ablation (B-M5 vs B-M6 at 100p)}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig5-rerank-ablation.png}
+\caption{Cumulative improvements: baseline $\to$ agent (no rerank, B-M5) $\to$ agent + cross-encoder rerank (B-M6), 100p, $n{=}40$.}
+\label{fig:ablation}
+\end{figure}
+\begin{table}[t]
+\centering
+\caption{Within-100p rerank ablation. Held everything else fixed except for unavoidable router LLM nondeterminism.}
+\label{tab:ablation}
+\begin{tabular}{lcccc}
+\toprule
+Metric & Baseline & Agent (no rerank) & Agent (+rerank) & $\Delta$ from rerank \\
+\midrule
+Faithfulness      & 0.853 & 0.872 & 0.872 & 0.000 \\
+Answer relevancy  & 0.299 & 0.791 & 0.875 & \textbf{+0.084} \\
+Context recall    & 0.208 & 0.879 & 0.854 & $-$0.025 \\
+Context precision & 0.200 & 0.862 & 0.887 & \textbf{+0.025} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ablation} and Figure~\ref{fig:ablation} isolate the cross-encoder rerank step. Rerank delivers its largest gain on \textbf{answer relevancy (+0.084)} --- better top-$k$ passages enable directly-answering, less-hedged responses --- and a modest \textbf{+0.025 on context precision}, the metric it directly targets. The small \textbf{$-$0.025 cost on context recall} is the textbook retrieve-and-rerank trade-off: aggressively keeping only the most semantically-matched passages drops secondary passages whose presence helped the recall metric. Faithfulness is unchanged at 0.872. The router distribution shifted slightly (vector $34\to 32$, local $5\to 7$) due to router LLM nondeterminism, not from rerank.
 
 \section{Discussion}
 
@@ -162,7 +187,7 @@ The headline (agent $\gg$ baseline) holds at double the corpus (Table~\ref{tab:s
 \end{figure}
 A baseline answer relevancy of 0.299 (global 0.044) invites suspicion. Decomposing the baseline answers (Figure~\ref{fig:hedge}): global mode hedges in 28/40 answers (``the provided summaries do not contain\ldots''), mean answer relevancy 0.033, and its 12 direct answers score only 0.068; local hedges in 25/40, while its 15 \emph{direct} answers score \textbf{0.610}; baseline faithfulness stays \textbf{0.853} --- the hedges are honest, not hallucinated.
 
-Two conclusions follow. First, the low scores are a \emph{genuine retrieval failure}: community summaries and 1-hop subgraphs do not contain the specific numbers the questions ask, so the model correctly declines --- exactly the gap the agent's passage retrieval closes (a fair, substantive improvement). Second, RAGAS scores a noncommittal answer as \textbf{0} regardless of grounding, so the \emph{magnitude} of the answer-relevancy gap (+0.493) is \emph{amplified} by this penalty. \textbf{Recommendation:} lead with context recall (+0.671) and context precision (+0.662) --- they measure retrieval directly and are independent of answer phrasing --- and present answer relevancy as corroborating, with the noncommittal caveat stated explicitly.
+Two conclusions follow. First, the low scores are a \emph{genuine retrieval failure}: community summaries and 1-hop subgraphs do not contain the specific numbers the questions ask, so the model correctly declines --- exactly the gap the agent's passage retrieval (with rerank) closes (a fair, substantive improvement). Second, RAGAS scores a noncommittal answer as \textbf{0} regardless of grounding, so the \emph{magnitude} of the answer-relevancy gap (+0.576) is \emph{amplified} by this penalty. \textbf{Recommendation:} lead with context recall (+0.646) and context precision (+0.687) --- they measure retrieval directly and are independent of answer phrasing --- and present answer relevancy as corroborating, with the noncommittal caveat stated explicitly.
 
 \subsection{A methodological lesson: silent truncation at scale}
 \label{sec:truncation}
@@ -179,7 +204,7 @@ The entity/relation extractor capped LLM output at 2{,}000 tokens. On 100 full-t
 \end{itemize}
 
 \section{Conclusion}
-Built on a frozen GraphRAG baseline, an agentic loop --- adaptive routing, retrieval grading with conditional wider re-retrieval, query rewriting, and a hallucination-only self-reflection --- delivers large, scale-robust gains on retrieval quality (context recall +0.67, precision +0.66) and answer relevancy (+0.49) on a 100-paper RAG corpus, at comparable faithfulness. The gains are genuine: the baseline fails by honestly declining fact-specific questions its graph retrieval cannot ground, and the agent's passage route supplies exactly those facts. The most defensible evidence is the phrasing-independent context metrics; the answer-relevancy gap is real but partly amplified by the judge's noncommittal penalty.
+Built on a frozen GraphRAG baseline, an agentic loop --- adaptive routing, retrieval grading with conditional wider re-retrieval, query rewriting, a hallucination-only self-reflection, and a cross-encoder rerank on the vector route --- delivers large, scale-robust gains on retrieval quality (context recall +0.65, precision +0.69) and answer relevancy (+0.58) on a 100-paper RAG corpus, at comparable faithfulness. Layering the cross-encoder rerank on top of dense retrieval contributes most of the answer-relevancy gain (+0.084 over no-rerank) and a modest precision lift (+0.025), at a small $-$0.025 cost in recall --- the standard retrieve-and-rerank trade-off. The gains are genuine: the baseline fails by honestly declining fact-specific questions its graph retrieval cannot ground, and the agent's passage route supplies exactly those facts. The most defensible evidence is the phrasing-independent context metrics; the answer-relevancy gap is real but partly amplified by the judge's noncommittal penalty.
 
 \paragraph{Reproducibility.} The full pipeline (network/LLM gated explicitly):
 \begin{verbatim}

@@ -31,6 +31,10 @@ EMBED_MODEL = "BAAI/bge-small-en-v1.5"   # local fastembed, same as A-M5 RAGAS
 CHUNK_CHARS = 1000
 CHUNK_OVERLAP = 150
 VECTOR_K = 8
+# B-M6 rerank: fetch k * RERANK_POOL_MULT dense candidates, cross-encoder rerank
+# them, keep top k. 3x pool is the common retrieve+rerank ratio; bigger pools
+# give the reranker more to choose from at modest extra cost (rerank is cheap).
+RERANK_POOL_MULT = 3
 SECTIONS = ("abstract", "intro", "related_work")
 ANSWER_MAX_TOKENS = 800
 
@@ -130,11 +134,23 @@ def vector_retrieve(query: str, config: PipelineConfig, k: int = VECTOR_K) -> li
     return [{"text": d.page_content, **d.metadata} for d in docs]
 
 
-def vector_search(query: str, config: PipelineConfig, k: int = VECTOR_K) -> SearchResult:
-    """Retrieve passages and answer the query with an LLM grounded in them."""
+def vector_search(
+    query: str, config: PipelineConfig, k: int = VECTOR_K, rerank: bool = True,
+) -> SearchResult:
+    """Retrieve passages and answer the query with an LLM grounded in them.
+
+    With `rerank=True` (default, B-M6): fetch `k * RERANK_POOL_MULT` dense
+    candidates, cross-encoder rerank them, keep the top `k`. With `rerank=False`:
+    plain dense top-`k` (pre-B-M6 behaviour, used for ablation).
+    """
     from search.engine import _llm_answer  # reuse Phase A's Claude answer helper
 
-    hits = vector_retrieve(query, config, k)
+    if rerank:
+        from search.rerank import rerank_hits
+        pool = vector_retrieve(query, config, k=k * RERANK_POOL_MULT)
+        hits = rerank_hits(query, pool, top_k=k)
+    else:
+        hits = vector_retrieve(query, config, k)
     if not hits:
         return SearchResult(
             query=query, mode="vector",

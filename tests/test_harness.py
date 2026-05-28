@@ -618,3 +618,45 @@ def test_run_agent_regenerates_on_ungrounded(tmp_path, monkeypatch):
     cfg = PipelineConfig.from_env(root=tmp_path)
     result = graph.run_agent("q", cfg)
     assert result.answer == "REVISED"   # regenerated after ungrounded reflection
+
+
+# ----------------------------- B-M6 rerank -----------------------------
+def test_rerank_hits_orders_by_score(monkeypatch):
+    """rerank_hits returns hits sorted by cross-encoder score desc, truncated to top_k."""
+    from search import rerank
+
+    class FakeRanker:
+        def rerank(self, query, texts):  # noqa: D401 — match fastembed shape
+            scored = {"a": 0.9, "b": 0.1, "c": 0.5, "d": 0.7}
+            return [scored[t] for t in texts]
+
+    monkeypatch.setattr(rerank, "_get_reranker", lambda: FakeRanker())
+    hits = [
+        {"text": "a", "paper_id": "p1"},
+        {"text": "b", "paper_id": "p2"},
+        {"text": "c", "paper_id": "p3"},
+        {"text": "d", "paper_id": "p4"},
+    ]
+    out = rerank.rerank_hits("q", hits, top_k=2)
+    assert [h["paper_id"] for h in out] == ["p1", "p4"]  # scores 0.9, 0.7
+
+
+def test_rerank_hits_falls_back_on_reranker_failure(monkeypatch):
+    """A reranker error must not break the query path — return input order truncated."""
+    from search import rerank
+
+    def boom():
+        raise RuntimeError("model download failed")
+
+    monkeypatch.setattr(rerank, "_get_reranker", boom)
+    hits = [{"text": "a"}, {"text": "b"}, {"text": "c"}]
+    out = rerank.rerank_hits("q", hits, top_k=2)
+    assert out == hits[:2]
+
+
+def test_rerank_hits_empty_inputs():
+    """Empty hits or non-positive top_k returns [] without invoking the reranker."""
+    from search import rerank
+
+    assert rerank.rerank_hits("q", [], top_k=5) == []
+    assert rerank.rerank_hits("q", [{"text": "a"}], top_k=0) == []

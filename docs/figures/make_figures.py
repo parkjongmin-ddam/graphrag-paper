@@ -170,12 +170,43 @@ def fig_hedging() -> None:
     plt.close(fig)
 
 
+def fig_rerank_ablation() -> None:
+    """Cumulative: baseline -> agent (no rerank) -> agent + rerank (B-M6)."""
+    b = _agg("baseline_phaseA.json")
+    norr = _agg("report_phaseB_norerank_100p.json")
+    rr = _agg("report_phaseB.json")
+    base = [_baseline_best(b, m) for m in METRICS]
+    no_rr = [norr.get(f"agent_{m}", 0.0) for m in METRICS]
+    with_rr = [rr.get(f"agent_{m}", 0.0) for m in METRICS]
+
+    x = range(len(METRICS))
+    w = 0.27
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    ax.bar([i - w for i in x], base, w, label="Phase A baseline (best)", color=C_BASE)
+    ax.bar(list(x), no_rr, w, label="Phase B agent (no rerank)", color="#7aa0e8")
+    ax.bar([i + w for i in x], with_rr, w, label="Phase B agent + rerank (B-M6)", color=C_AGENT)
+    for xi, vals in zip(x, zip(base, no_rr, with_rr)):
+        for offset, v in zip((-w, 0, w), vals):
+            ax.text(xi + offset, v + 0.013, f"{v:.3f}", ha="center", va="bottom", fontsize=7.5)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(LABELS)
+    ax.set_ylim(0, 1.0)
+    ax.set_ylabel("RAGAS score")
+    ax.set_title("Cumulative improvements: baseline → agent → + cross-encoder rerank (100p, n=40)")
+    ax.legend(loc="upper center", fontsize=8, ncol=3)
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(OUT / "fig5-rerank-ablation.png", dpi=150)
+    plt.close(fig)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fig_main_results()
     fig_scale_robustness()
     fig_routes()
     fig_hedging()
+    fig_rerank_ablation()
     print("wrote figures to", OUT)
     for p in sorted(OUT.glob("*.png")):
         print(" -", p.name)

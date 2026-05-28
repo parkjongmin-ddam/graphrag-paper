@@ -12,3 +12,6 @@ data/vector/
 
 # 테스트 캐시
 .pytest_cache/
+
+# Overleaf 업로드용 일회성 zip
+graphrag-paper-overleaf.zip

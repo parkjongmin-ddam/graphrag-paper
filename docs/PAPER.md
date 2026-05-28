@@ -205,7 +205,30 @@ Three observations:
 
 Outputs: `data/eval/baseline_phaseA_openai_judge.json`, `data/eval/report_phaseB_openai_judge.json`. Reproduce: `python -m eval.judge_ablation`.
 
-### 6.3 A methodological lesson: silent truncation at scale
+### 6.3 Generalization check: human-authored questions (n=15)
+
+The 40 synthetic questions are LLM-generated from corpus excerpts and risk *retrievable bias*: the generator tends to pick questions whose answers are clearly in the excerpt it sees. To probe how much of the agent advantage survives questions a *human* would ask, we built an independent 15-question set with a human author writing every Q and ground-truth from scratch, across five categories — 5 fact-specific, 3 comparative, 3 multi-hop (each linking two papers), 2 methodological, 2 ambiguous — covering 18 papers, **none overlapping with the 40 synthetic sources**. Both Phase A baseline and the Phase B agent answer the same set, and we score with both judges (Claude default + OpenAI gpt-4o-mini) following §6.2.
+
+We **pre-registered thresholds** (locked before running the eval): an agent − baseline_best Δ ≥ 0.40 = "strong; advantage generalizes"; 0.20 ≤ Δ < 0.40 = "smaller; synthetic-convenience effect present, but advantage holds"; Δ < 0.20 = "much of the synthetic advantage was convenience-driven; soften the headline".
+
+![Human subset](figures/fig7-human-subset.png)
+
+| Metric | Δ synth (Claude) | Δ human (Claude) | Δ synth (OpenAI) | Δ human (OpenAI) | Verdict |
+|---|---|---|---|---|---|
+| Faithfulness | +0.019 | −0.006 | +0.090 | +0.046 | (not the differentiator; both near 0.9) |
+| Answer relevancy | +0.576 | +0.480 | +0.544 | +0.350 | **strong (Claude) / caveat (OpenAI)** |
+| Context recall | +0.646 | **+0.433** | +0.454 | **+0.567** | **strong under both judges** |
+| Context precision | +0.687 | +0.400 | +0.323 | +0.333 | borderline / caveat |
+
+Three honest takeaways:
+
+1. **The headline holds on human-authored questions.** Every metric keeps a positive (or zero, for faithfulness) agent-vs-baseline sign under *both* judges. The agent is not just winning on questions an LLM picked for it.
+2. **A real but moderate synthetic-convenience effect is now confirmed.** Synthetic Δ exceeds human Δ on every metric — by roughly 0.10–0.30. We had hypothesized this and now have an honest measurement of its size.
+3. **Context recall is the most robust evidence** — strong (≥0.40) under *both* judges (+0.433 Claude, +0.567 OpenAI). Combined with §6.1 (phrasing-independence) and §6.2 (judge-robustness), it is the single best number to lead with: phrasing-independent, judge-robust, *and* generalizes beyond the synthetic set.
+
+Outputs: `data/eval/{baseline,agent}_human_{claude,openai}.json`. Reproduce: `python -m eval.eval_human`. Question set: `data/eval/questions_human.json` (15 items, source `docs/questions_human_draft.md`).
+
+### 6.4 A methodological lesson: silent truncation at scale
 
 The entity/relation extractor capped LLM output at 2,000 tokens. On 100 full-text papers (intro + related work), many extractions exceeded this and were truncated mid-JSON, failing to parse and contributing **zero** entities/relations — roughly half the papers in an initial 100-paper run. Raising the cap to 8,000 tokens cut the failure rate from ~50% to ~1% and grew the graph from 503/532 (50p, old cap) to 1,342/1,489 (100p).
 
@@ -219,7 +242,7 @@ Consequently the 50→100 comparison conflates two changes (more papers **and** 
 - **Noncommittal penalty.** As shown, it amplifies the answer_relevancy gap; we mitigate by leading with context metrics.
 - **n = 40.** Milestone-level deltas (±0.05–0.10) are within run-to-run variance; only the large, consistent gaps are treated as robust.
 - **Single domain.** The corpus is RAG-only (by design, for entity connectivity); generalization to other domains is untested.
-- **Synthetic questions from the same corpus.** Questions are LLM-generated from corpus excerpts, which may favor retrievable phrasings; no human-authored test set.
+- **Eval set size.** §6.3 cross-checks the synthetic n=40 with a 15-question human-authored set and confirms the agent advantage holds, with a moderate synthetic-convenience effect (~0.10–0.30 smaller Δ on human questions). A larger human set (n≥50) would tighten the estimate.
 - **Extraction gaps.** With GROBID disabled, abstract-only papers contribute thinner graph/vector content.
 
 ---

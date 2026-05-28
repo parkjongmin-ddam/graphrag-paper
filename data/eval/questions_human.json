@@ -1,0 +1,104 @@
+[
+  {
+    "question": "How many fundamental RAG abilities does the RGB benchmark evaluate, and what are they?",
+    "ground_truth": "Four: noise robustness, negative rejection, information integration, and counterfactual robustness.",
+    "source_paper_id": "28e2ecb4183ebc0eec504b12dddc677f8aef8745",
+    "category": "fact"
+  },
+  {
+    "question": "How many RAG methods and benchmark datasets does FlashRAG implement?",
+    "ground_truth": "16 advanced RAG methods and 38 benchmark datasets.",
+    "source_paper_id": "daebec92963ab8dea492f0c209bdf57e87bcaa07",
+    "category": "fact"
+  },
+  {
+    "question": "Which chunk size does the study find optimal for concise fact-based answers, and which for broader contextual understanding?",
+    "ground_truth": "64–128 tokens for concise fact-based answers; 512–1024 tokens for broader contextual understanding.",
+    "source_paper_id": "8212d4df209a2586f5ae375ea21622ee1dc0cb12",
+    "category": "fact"
+  },
+  {
+    "question": "From how many case-study domains did the authors derive their failure points, and which domains?",
+    "ground_truth": "Three domains: research, education, and biomedical.",
+    "source_paper_id": "ba454ba8c594dfb86c25dff2e265c8a2686aa037",
+    "category": "fact"
+  },
+  {
+    "question": "What benchmark does PaperQA introduce, and how does it perform on it relative to human researchers?",
+    "ground_truth": "It introduces LitQA and matches expert human researchers on it.",
+    "source_paper_id": "7e55d8701785818776323b4147cb13354c820469",
+    "category": "fact"
+  },
+  {
+    "question": "How do traditional retrieval models like BM25 and DPR differ from generative models like GPT-4-o in this paper's framing?",
+    "ground_truth": "Retrieval models retrieve efficiently from large corpora but lack semantic depth, whereas generative models give richer context but struggle with factual consistency.",
+    "source_paper_id": "5af10e53941c4256cdd8d27b04eb1ca8f1f76218",
+    "category": "compare"
+  },
+  {
+    "question": "What mechanism does HopRAG add on top of lexical/semantic retrieval to find logically relevant passages?",
+    "ground_truth": "A retrieve-reason-prune process over a passage graph whose edges are LLM-generated pseudo-queries, exploring multi-hop neighbors via LLM reasoning.",
+    "source_paper_id": "f92fd02f5bc38802d7ddd91b4bc4e3001573f5d6",
+    "category": "compare"
+  },
+  {
+    "question": "What embedding geometry does HypRAG use instead of Euclidean space, and what gain does its hybrid variant report on RAGBench?",
+    "ground_truth": "Hyperbolic (Lorentz-model) space; the hybrid HyTE-H variant reports up to 29% gains over Euclidean baselines in context and answer relevance.",
+    "source_paper_id": "c3788ddba6a255a09eb969b5a8ccd2d5921f53bd",
+    "category": "compare"
+  },
+  {
+    "question": "Chain-of-Note and InstructRAG both denoise retrieved documents—what intermediate artifact does each generate to do so?",
+    "ground_truth": "Chain-of-Note generates sequential reading notes for each retrieved document, while InstructRAG generates self-synthesized rationales explaining how the answer is derived from the documents.",
+    "source_paper_id": "6489640b1d30a8a3e7cb906bb6557f1ccd0d799d",
+    "source_paper_ids": [
+      "6489640b1d30a8a3e7cb906bb6557f1ccd0d799d",
+      "e8a9b5a32836af499dcb9ccdee1008638309a6cc"
+    ],
+    "category": "multihop"
+  },
+  {
+    "question": "Name the retrieval attack each paper targets, and whether each detects or defends against it.",
+    "ground_truth": "The Adversarial Hubness Detector detects hubness (items over-represented in top-k results across many queries), whereas ProGRank defends against corpus poisoning (passages injected or edited to enter the Top-K) using probe-gradient reranking.",
+    "source_paper_id": "b63bb769ac924c5411704331071333515b2f5190",
+    "source_paper_ids": [
+      "b63bb769ac924c5411704331071333515b2f5190",
+      "37845b206ddf48fc757285472159a5198fd320d7"
+    ],
+    "category": "multihop"
+  },
+  {
+    "question": "Both are multimodal RAG frameworks—what retrieval structure does each use, and does each build a graph?",
+    "ground_truth": "MG²-RAG builds a hierarchical multi-granularity multimodal knowledge graph and propagates relevance across it, whereas M3DocRAG uses a multimodal retriever with a multimodal language model and no graph, retrieving across pages and documents.",
+    "source_paper_id": "2c74686c061a8381f515311aa41b75113019f313",
+    "source_paper_ids": [
+      "2c74686c061a8381f515311aa41b75113019f313",
+      "226787d438bc47f986f82625d6b74fa6f733ef60"
+    ],
+    "category": "multihop"
+  },
+  {
+    "question": "On what basis does DRAGIN decide when and what to retrieve, versus prior dynamic-RAG methods?",
+    "ground_truth": "On the LLM's real-time information needs during generation, rather than the static timing rules and last-sentence/last-few-tokens queries used by prior methods.",
+    "source_paper_id": "1cc6cc4960f7df59e7813d9a8e11098d0a0d0720",
+    "category": "method"
+  },
+  {
+    "question": "How does ARL2 supervise retriever training for a black-box LLM?",
+    "ground_truth": "It uses the LLM itself as a labeler to annotate and score relevant evidence, plus an adaptive self-training strategy to curate relevance data while cutting annotation cost.",
+    "source_paper_id": "c4aeec57b9ad4fa36cbd9bdad05dbbbd340183df",
+    "category": "method"
+  },
+  {
+    "question": "What four-way taxonomy does the survey use to categorize RAG architectures?",
+    "ground_truth": "Retriever-centric, generator-centric, hybrid, and robustness-oriented designs.",
+    "source_paper_id": "45ed289c810d1d7025a2597c66b0e21c592c02a7",
+    "category": "ambig"
+  },
+  {
+    "question": "Why does CoRAG reframe RAG as a cooperative decision-making problem rather than a ranking pipeline?",
+    "ground_truth": "Because the conventional ranking-centric, asymmetric pipeline makes the generator overly dependent on the reranker; CoRAG instead treats them as peer decision-makers jointly optimized toward a shared objective.",
+    "source_paper_id": "d48032843bc08c95c0fa71d82818afb34bba55b0",
+    "category": "ambig"
+  }
+]

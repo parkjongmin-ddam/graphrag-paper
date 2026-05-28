@@ -142,7 +142,7 @@ def _print_comparison(human_b_claude, human_a_claude, human_b_openai, human_a_op
     synth_b_oai = json.loads((config.eval_dir / "baseline_phaseA_openai_judge.json").read_text(encoding="utf-8"))["aggregate"]
     synth_a_oai = json.loads((config.eval_dir / "report_phaseB_openai_judge.json").read_text(encoding="utf-8"))["aggregate"]
 
-    print(f"\n=== Agent − baseline_best delta: synthetic (n=40) vs human (n={human_a_claude.n}) ===")
+    print(f"\n=== Agent - baseline_best delta: synthetic (n=40) vs human (n={human_a_claude.n}) ===")
     hdr = f"{'metric':<20}{'synth claude':>14}{'human claude':>14}{'synth openai':>14}{'human openai':>14}"
     print(hdr)
     print("-" * len(hdr))

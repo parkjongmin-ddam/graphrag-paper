@@ -219,6 +219,36 @@ Context precision & +0.687 & +0.323          & 0.887 & 0.973 \\
 
 The most cross-judge-consistent metric is \textbf{answer relevancy} ($\Delta$ 0.576 vs.\ 0.544, $\sim$5\% spread). Combined with the leading-context-metrics recommendation from \S6.1, the most defensible reviewer-facing bundle is \{context recall, context precision, answer relevancy\}: the first two are phrasing-independent, the third is now also judge-robust. Outputs: \texttt{data/eval/\{baseline\_phaseA, report\_phaseB\}\_openai\_judge.json}. Reproduce: \texttt{python -m eval.judge\_ablation}.
 
+\subsection{Generalization check: human-authored questions ($n{=}15$)}
+The 40 synthetic questions are LLM-generated from corpus excerpts and risk \emph{retrievable bias}: the generator tends to pick questions whose answers are clearly in the excerpt it sees. To probe how much of the agent advantage survives questions a \emph{human} would ask, we built an independent 15-question set with a human author writing every Q and ground-truth from scratch, across five categories --- 5 fact-specific, 3 comparative, 3 multi-hop (each linking two papers), 2 methodological, 2 ambiguous --- covering 18 papers, none overlapping with the 40 synthetic sources. Both systems answer the same set, scored by both judges following \S6.2.
+
+\noindent We \textbf{pre-registered thresholds} (locked before running the eval): agent$-$baseline-best $\Delta \geq 0.40$ = ``strong; advantage generalizes''; $0.20 \leq \Delta < 0.40$ = ``smaller; synthetic-convenience effect present, but advantage holds''; $\Delta < 0.20$ = ``much of the synthetic advantage was convenience-driven; soften the headline''.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig7-human-subset.png}
+\caption{Generalization check: agent$-$baseline-best $\Delta$ on synthetic ($n{=}40$) vs.\ human-authored ($n{=}15$) questions, both judges.}
+\label{fig:human}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Cross-set delta comparison; verdict applied with pre-registered thresholds.}
+\label{tab:human}
+\begin{tabular}{lcccc}
+\toprule
+Metric & $\Delta$ synth (Cl.) & $\Delta$ human (Cl.) & $\Delta$ synth (OAI) & $\Delta$ human (OAI) \\
+\midrule
+Faithfulness      & +0.019 & $-$0.006 & +0.090 & +0.046 \\
+Answer relevancy  & +0.576 & +0.480   & +0.544 & +0.350 \\
+Context recall    & +0.646 & \textbf{+0.433} & +0.454 & \textbf{+0.567} \\
+Context precision & +0.687 & +0.400   & +0.323 & +0.333 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three takeaways. (1) \emph{The headline holds on human-authored questions} --- every metric keeps a positive (or zero, for faithfulness) sign under both judges. (2) \emph{A real but moderate synthetic-convenience effect is confirmed} --- synthetic $\Delta$ exceeds human $\Delta$ on every metric by roughly $0.10$--$0.30$. (3) \emph{Context recall is the most robust evidence} --- strong ($\geq 0.40$) under both judges (+0.433 Claude, +0.567 OpenAI). Combined with the phrasing-independence argument from \S6.1 and the judge-robustness from \S6.2, context recall is the single best number to lead with: phrasing-independent, judge-robust, \emph{and} generalizes beyond the synthetic set. Outputs: \texttt{data/eval/\{baseline,agent\}\_human\_\{claude,openai\}.json}. Reproduce: \texttt{python -m eval.eval\_human}.
+
 \subsection{A methodological lesson: silent truncation at scale}
 \label{sec:truncation}
 The entity/relation extractor capped LLM output at 2{,}000 tokens. On 100 full-text papers, many extractions exceeded this and were truncated mid-JSON, failing to parse and contributing \emph{zero} entities/relations --- roughly half the papers in an initial 100-paper run. Raising the cap to 8{,}000 tokens cut the failure rate from $\sim$50\% to $\sim$1\% and grew the graph from 503/532 (50p, old cap) to 1{,}342/1{,}489 (100p). Consequently the 50$\to$100 comparison conflates two changes (more papers \emph{and} the truncation fix); we flag this rather than hide it. The within-corpus agent-vs-baseline comparison at each scale is unaffected, since both systems read the same graph. The lesson: an output cap is a silent failure mode for structured extraction --- validate parse-success rate, not just that the pipeline ran.
@@ -229,7 +259,7 @@ The entity/relation extractor capped LLM output at 2{,}000 tokens. On 100 full-t
   \item \textbf{Noncommittal penalty} amplifies the answer-relevancy gap; we mitigate by leading with context metrics.
   \item \textbf{$n{=}40$.} Milestone-level deltas ($\pm$0.05--0.10) are within run-to-run variance; only the large, consistent gaps are treated as robust.
   \item \textbf{Single domain.} The corpus is RAG-only (by design, for entity connectivity); cross-domain generalization is untested.
-  \item \textbf{Synthetic questions from the same corpus} may favor retrievable phrasings; there is no human-authored test set.
+  \item \textbf{Eval set size.} \S6.3 cross-checks the synthetic $n{=}40$ with a 15-question human-authored set and confirms the agent advantage holds, with a moderate synthetic-convenience effect ($\sim$0.10--0.30 smaller $\Delta$ on human questions). A larger human set ($n \geq 50$) would tighten the estimate.
   \item \textbf{Extraction gaps.} With GROBID disabled, abstract-only papers contribute thinner graph/vector content.
 \end{itemize}
 

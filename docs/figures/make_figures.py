@@ -237,6 +237,55 @@ def fig_judge_ablation() -> None:
     plt.close(fig)
 
 
+def fig_human_subset() -> None:
+    """Generalization check: agent-baseline delta on synthetic (n=40) vs human (n=15)."""
+    def agg(name):
+        try:
+            return json.loads((EVAL / name).read_text(encoding="utf-8"))["aggregate"]
+        except FileNotFoundError:
+            return None
+    sb = agg("baseline_phaseA.json"); sa = agg("report_phaseB.json")
+    sbo = agg("baseline_phaseA_openai_judge.json"); sao = agg("report_phaseB_openai_judge.json")
+    hbc = agg("baseline_human_claude.json"); hac = agg("agent_human_claude.json")
+    hbo = agg("baseline_human_openai.json"); hao = agg("agent_human_openai.json")
+    if any(x is None for x in (sb, sa, sbo, sao, hbc, hac, hbo, hao)):
+        print("  (skipping fig7: human-subset reports missing; run `python -m eval.eval_human`)")
+        return
+
+    def delta(agent, base, m):
+        a = agent.get(f"agent_{m}"); b = _baseline_best(base, m)
+        return (a - b) if (a is not None and b is not None) else 0.0
+
+    sc = [delta(sa, sb, m) for m in METRICS]
+    hc = [delta(hac, hbc, m) for m in METRICS]
+    so = [delta(sao, sbo, m) for m in METRICS]
+    ho = [delta(hao, hbo, m) for m in METRICS]
+
+    x = range(len(METRICS))
+    w = 0.2
+    fig, ax = plt.subplots(figsize=(9.5, 4.8))
+    ax.bar([i - 1.5 * w for i in x], sc, w, label="Synthetic n=40 (Claude judge)", color=C_AGENT)
+    ax.bar([i - 0.5 * w for i in x], hc, w, label="Human n=15 (Claude judge)", color="#7aa0e8")
+    ax.bar([i + 0.5 * w for i in x], so, w, label="Synthetic n=40 (OpenAI judge)", color="#e07b39")
+    ax.bar([i + 1.5 * w for i in x], ho, w, label="Human n=15 (OpenAI judge)", color="#f1c1a9")
+    for xi, vals in zip(x, zip(sc, hc, so, ho)):
+        for offset, v in zip((-1.5 * w, -0.5 * w, 0.5 * w, 1.5 * w), vals):
+            ax.text(xi + offset, v + 0.013 if v >= 0 else v - 0.02, f"{v:+.2f}", ha="center", va="bottom" if v >= 0 else "top", fontsize=7)
+    ax.axhline(0, color="black", linewidth=0.6)
+    ax.axhline(0.40, color="green", linewidth=0.6, linestyle=":", alpha=0.6, label="threshold 0.40 (strong)")
+    ax.axhline(0.20, color="orange", linewidth=0.6, linestyle=":", alpha=0.6, label="threshold 0.20 (caveat)")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(LABELS)
+    ax.set_ylim(-0.1, 0.8)
+    ax.set_ylabel("Agent − baseline_best Δ")
+    ax.set_title("Generalization check: synthetic vs human-authored questions, both judges")
+    ax.legend(loc="upper right", fontsize=7, ncol=2)
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(OUT / "fig7-human-subset.png", dpi=150)
+    plt.close(fig)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fig_main_results()
@@ -245,6 +294,7 @@ def main() -> None:
     fig_hedging()
     fig_rerank_ablation()
     fig_judge_ablation()
+    fig_human_subset()
     print("wrote figures to", OUT)
     for p in sorted(OUT.glob("*.png")):
         print(" -", p.name)

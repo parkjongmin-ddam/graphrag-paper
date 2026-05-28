@@ -2,7 +2,9 @@
 
 *A 100-paper experiment on whether an agentic loop actually beats a GraphRAG baseline — and how to read the numbers without fooling yourself.*
 
-Most papers on Agentic RAG show big numbers. I wanted to know how much of that holds when you build one carefully on a frozen baseline, run the same questions through both, and look hard at *why* the numbers move. So I built **GraphRAG** end-to-end on a 100-paper RAG-literature corpus, layered an **agentic loop** on top of it, and asked the same 40 questions through both. This post is the readable version. The full technical report is in [`docs/PAPER.md`](PAPER.md); the code is [parkjongmin-ddam/graphrag-paper](https://github.com/parkjongmin-ddam/graphrag-paper).
+📄 [Read the full paper (PDF)](https://github.com/parkjongmin-ddam/graphrag-paper/blob/main/docs/paper.pdf) · 💻 [Code on GitHub](https://github.com/parkjongmin-ddam/graphrag-paper) · 📝 [Markdown report](https://github.com/parkjongmin-ddam/graphrag-paper/blob/main/docs/PAPER.md)
+
+Most papers on Agentic RAG show big numbers. I wanted to know how much of that holds when you build one carefully on a frozen baseline, run the same questions through both, and look hard at *why* the numbers move. So I built **GraphRAG** end-to-end on a 100-paper RAG-literature corpus, layered an **agentic loop** on top of it, and asked the same 40 questions through both. This post is the readable version.
 
 ## What's in the box
 
@@ -24,7 +26,7 @@ A third retriever — dense passage retrieval over chunked papers — is added, 
 
 On 100 papers / 40 questions / Claude judge, agent vs. the *better* of the two baseline modes:
 
-![Main result](figures/fig1-main-results.png)
+![Main result](https://raw.githubusercontent.com/parkjongmin-ddam/graphrag-paper/main/docs/figures/fig1-main-results.png)
 
 | Metric | Baseline (best) | Agent | Δ |
 |---|---|---|---|
@@ -41,7 +43,7 @@ The headline holds when the corpus is scaled from 50 to 100 papers; routing is s
 
 A reviewer's first question, fair enough. The metric scores hedged answers like "the provided summaries do not contain that information" as **0**, no matter how faithful they are. Decomposing the baseline:
 
-![Hedging](figures/fig4-hedging-decomposition.png)
+![Hedging](https://raw.githubusercontent.com/parkjongmin-ddam/graphrag-paper/main/docs/figures/fig4-hedging-decomposition.png)
 
 - **Global** mode hedges in **28/40** answers. Mean answer relevancy: 0.033.
 - **Local** hedges in **25/40**. The 15 *direct* local answers score **0.610**.
@@ -81,8 +83,34 @@ python run_pipeline.py --list
 python run_pipeline.py --only agent_eval --allow-network --force
 ```
 
-Or just read [`docs/PAPER.md`](PAPER.md). All 5 figures regenerate deterministically from the eval JSON via `python docs/figures/make_figures.py`.
+Or read the [Markdown report](https://github.com/parkjongmin-ddam/graphrag-paper/blob/main/docs/PAPER.md) / [compiled PDF](https://github.com/parkjongmin-ddam/graphrag-paper/blob/main/docs/paper.pdf). All 7 figures regenerate deterministically from the eval JSON via `python docs/figures/make_figures.py`.
 
 ---
 
 *Code, paper, and eval artifacts: <https://github.com/parkjongmin-ddam/graphrag-paper>. MIT licensed. Issues and PRs welcome.*
+
+---
+
+## Publishing notes (for the author, remove before posting)
+
+The image links above use absolute GitHub raw URLs, so this Markdown is **ready to paste into dev.to, Medium, LinkedIn, or any platform that accepts external images**. No further editing needed for image paths.
+
+**dev.to** — paste the body into a new post. Recommended frontmatter at the very top:
+```yaml
+---
+title: From GraphRAG to Agentic RAG, Honestly Measured
+published: false
+description: A 100-paper experiment on whether an agentic RAG loop actually beats a GraphRAG baseline — read the numbers without fooling yourself.
+tags: rag, llm, langchain, machinelearning
+cover_image: https://raw.githubusercontent.com/parkjongmin-ddam/graphrag-paper/main/docs/figures/fig1-main-results.png
+---
+```
+Set `published: true` when ready.
+
+**Medium** — paste the body. Medium auto-imports the H1 as the title. After pasting, replace the title block with their built-in title field. Cover image: drag-drop `fig1-main-results.png` (downloaded from the repo) at the top.
+
+**LinkedIn Articles** — paste the body. LinkedIn doesn't render Markdown tables — replace the two tables with bullet summaries, or screenshot them.
+
+**Personal Jekyll/Hugo/MDX blog** — copy as-is, swap image URLs to your own asset paths if you self-host figures.
+
+After publishing, add the post URL near the top of `README.md` (e.g., `**Blog post**: <url>`) and remove this Publishing-notes section from the published copy.

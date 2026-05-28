@@ -1,7 +1,14 @@
 # graphrag-paper
 
+[![Repo](https://img.shields.io/badge/GitHub-parkjongmin--ddam%2Fgraphrag--paper-181717?logo=github)](https://github.com/parkjongmin-ddam/graphrag-paper)
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Last commit](https://img.shields.io/github/last-commit/parkjongmin-ddam/graphrag-paper)](https://github.com/parkjongmin-ddam/graphrag-paper/commits/main)
+[![Report](https://img.shields.io/badge/%F0%9F%93%84_report-docs%2FPAPER.md-2f6fec)](docs/PAPER.md)
+
 RAG 논문 코퍼스 기반 **GraphRAG 구현 → Agentic RAG 결합** 프로젝트.
 목표는 RAG / LangChain / LangGraph 실력 심화.
+
+**저장소**: <https://github.com/parkjongmin-ddam/graphrag-paper>
 
 ## 구성 (2단계)
 

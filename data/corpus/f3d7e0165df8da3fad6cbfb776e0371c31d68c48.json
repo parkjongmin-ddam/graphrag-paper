@@ -1,0 +1,26 @@
+{
+  "paper_id": "f3d7e0165df8da3fad6cbfb776e0371c31d68c48",
+  "arxiv_id": "2601.15457",
+  "title": "Chunking, Retrieval, and Re-ranking: An Empirical Evaluation of RAG Architectures for Policy Document Question Answering",
+  "year": 2026,
+  "authors": [],
+  "abstract": "The integration of Large Language Models (LLMs) into the public health policy sector offers a transformative approach to navigating the vast repositories of regulatory guidance maintained by agencies such as the Centers for Disease Control and Prevention (CDC). However, the propensity for LLMs to generate hallucinations, defined as plausible but factually incorrect assertions, presents a critical barrier to the adoption of these technologies in high-stakes environments where information integrity is non-negotiable. This empirical evaluation explores the effectiveness of Retrieval-Augmented Generation (RAG) architectures in mitigating these risks by grounding generative outputs in authoritative document context. Specifically, this study compares a baseline Vanilla LLM against Basic RAG and Advanced RAG pipelines utilizing cross-encoder re-ranking. The experimental framework employs a Mistral-7B-Instruct-v0.2 model and an all-MiniLM-L6-v2 embedding model to process a corpus of official CDC policy analytical frameworks and guidance documents. The analysis measures the impact of two distinct chunking strategies, recursive character-based and token-based semantic splitting, on system accuracy, measured through faithfulness and relevance scores across a curated set of complex policy scenarios. Quantitative findings indicate that while Basic RAG architectures provide a substantial improvement in faithfulness (0.621) over Vanilla baselines (0.347), the Advanced RAG configuration achieves a superior faithfulness average of 0.797. These results demonstrate that two-stage retrieval mechanisms are essential for achieving the precision required for domain-specific policy question answering, though structural constraints in document segmentation remain a significant bottleneck for multi-step reasoning tasks.",
+  "intro": "The current landscape of natural language processing is dominated by transformer-based Large Language Models that have demonstrated remarkable capabilities in text synthesis, summarization, and zero-shot reasoning [cite]. Despite these advancements, the utility of standalone models in specialized domains like public health policy is severely hampered by their reliance on internal weights that may contain outdated, biased, or incorrect information [cite]. In the context of regulatory compliance and policy analysis, a single erroneous recommendation can have profound implications for public safety and institutional credibility. Consequently, there is an urgent need for architectural frameworks that can reliably bridge the gap between generative fluency and factual grounding [cite].\n\nThe motivation behind this research stems from the increasing complexity of government policy repositories. Public health officials are frequently required to synthesize information across disparate documents, such as the CDC Policy Analytical Framework, Strategy and Policy Development guidelines, and Program Cost Analysis manuals. Manually navigating these documents is time-intensive and prone to human error, yet traditional keyword-based search engines lack the semantic depth to answer complex, scenario-based queries. Retrieval-Augmented Generation (RAG) has emerged as a promising paradigm that combines the strengths of information retrieval with the generative capacity of LLMs by injecting relevant document fragments directly into the model’s prompt [cite].\n\nThe fundamental research question addressed in this paper is: To what extent do advanced retrieval techniques, such as cross-encoder re-ranking and optimized chunking strategies, improve the faithfulness and relevance of generated answers in a policy-specific question-answering system? By evaluating these architectures using a specialized corpus of CDC policy documents, this study seeks to provide a reproducible baseline for the deployment of intelligent policy navigators in regulated information environments. The significance of this work lies in its empirical comparison of system configurations, highlighting the critical role of the retrieval pipeline in ensuring that LLMs act not as repositories of knowledge, but as precise synthesizers of authoritative evidence.",
+  "related_work": "",
+  "citations": [
+    "9d7db5cd7d3af51ea491cbcbc3129939b6957244",
+    "44259f6715c6ede7404268fa6e0af9f72b0ac3b0",
+    "3daedc1e0a9db8c4dda7e06724b0b556f64c0752",
+    "fdefb6a9b51c742d71740d25a76973116a2e0893",
+    "46f9f7b8f88f72e12cbdb21e3311f995eb6e65c5",
+    "f5e9e5bbe22f0263be1f1ce88c66978a2b927772",
+    "d00735241af700d21762d2f3ca00d920241a15a4",
+    "1733eb7792f7a43dd21f51f4d1017a1bffd217b5",
+    "659bf9ce7175e1ec266ff54359e2bd76e0b7ff31",
+    "c6c734e16f66fbfcefac7625cc64599e83292c1e",
+    "93d63ec754f29fa22572615320afe0521f7ec66d",
+    "85e07116316e686bf787114ba10ca60f4ea7c5b2",
+    "204e3073870fae3d05bcbc2f6a8e263d9b72e776",
+    "df2b0e26d0599ce3e70df8a9da02e51594e0e992"
+  ]
+}

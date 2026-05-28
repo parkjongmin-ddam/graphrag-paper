@@ -1,0 +1,29 @@
+# A-M0 ingest
+requests
+pylatexenc        # LaTeX -> text for extract_sections
+
+# A-M1 graph
+anthropic         # claude-haiku for entity/relation extraction
+
+# A-M2 community detection
+python-igraph     # graph data structures
+leidenalg         # Leiden algorithm (canonical impl, used by MS GraphRAG)
+
+# config
+python-dotenv     # loads .env into os.environ at startup
+
+# A-M5 eval
+ragas               # faithfulness / answer_relevancy / context_recall / context_precision
+datasets            # ragas evaluate() consumes a HF Dataset
+langchain-anthropic # claude-haiku as the RAGAS judge LLM (OpenAI account out of quota)
+fastembed           # local ONNX embeddings for answer_relevancy (no torch, no API cost)
+# openai            # legacy: gpt-4o-mini + embeddings backend, replaced by Claude + fastembed
+
+# B-M1 vector search (Phase B)
+langchain-chroma    # Chroma vector store wrapper (dense passage retrieval)
+chromadb            # persistent vector index backend (data/vector/)
+# fastembed (above) reused for local passage embeddings
+langgraph           # agent orchestration graph (route -> search; B-M2+ adds edges)
+
+# dev / test
+pytest

@@ -1,0 +1,202 @@
+[
+  {
+    "question": "What are the five main weaknesses of parametric language models that the paper identifies?",
+    "ground_truth": "The five weaknesses are: W1 - the prevalence of factual errors, W2 - the difficulty of verification, W3 - difficulty of opting out certain sequences with concerns, W4 - computationally expensive costs for adaptations, and W5 - prohibitively large model size.",
+    "source_paper_id": "cfa85c8db829dbd2384ea7f130f462e7e7f1f630"
+  },
+  {
+    "question": "What specific parameters did cross-encoder reranking use to achieve its 59% absolute improvement in MRR@5, and how much did small-to-big retrieval increase latency compared to baseline chunking?",
+    "ground_truth": "Cross-encoder reranking achieved a 59% absolute improvement in MRR@5 at optimal parameters (10, 5), while small-to-big retrieval achieved a 65% win rate over baseline chunking with only 0.2 seconds additional latency.",
+    "source_paper_id": "18b1792f789f695b6a69229cd6a67cca99055307"
+  },
+  {
+    "question": "By what percentage did REPLUG improve the performance of GPT-3 on language modeling, and what improvement did it achieve for Codex on five-shot MMLU?",
+    "ground_truth": "REPLUG with the tuned retriever improved the performance of GPT-3 (175B) on language modeling by 6.3%, and improved the performance of Codex on five-shot MMLU by 5.1%.",
+    "source_paper_id": "07b14c24833400b79978b0a5f084803337e30a15"
+  },
+  {
+    "question": "What is the Maximum Semantic Cluster Proportion (MSCP) and how does the LLM-Confidence Reranker use it to assess document relevance?",
+    "ground_truth": "LCR leverages black-box LLM confidence derived from Maximum Semantic Cluster Proportion (MSCP) through a two-stage process: confidence assessment via multinomial sampling and clustering, followed by binning and multi-level sorting based on query and document confidence thresholds.",
+    "source_paper_id": "4102a9779b8c990e488327bba9d3583c44b323b8"
+  },
+  {
+    "question": "What is the only trainable component in xRAG, and why is this design choice beneficial?",
+    "ground_truth": "The only trainable component in xRAG is the modality bridge, while both the retriever and the language model remain frozen. This design choice allows for the reuse of offline-constructed document embeddings and preserves the plug-and-play nature of retrieval augmentation.",
+    "source_paper_id": "38fcc3667a907d6c94267c674aad114aae68441e"
+  },
+  {
+    "question": "What are the two distinct fine-tuning steps that RA-DIT uses to retrofit an LLM with retrieval capabilities?",
+    "ground_truth": "The first step updates a pre-trained LM to better use retrieved information, while the second step updates the retriever to return more relevant results as preferred by the LM.",
+    "source_paper_id": "368fb35a07076eba01c2e4700499323cd4524513"
+  },
+  {
+    "question": "What are the six key dimensions of trustworthiness that the Trust-RAG Compass framework assesses in RAG systems?",
+    "ground_truth": "The six key dimensions are: factuality, robustness, fairness, transparency, accountability, and privacy.",
+    "source_paper_id": "273c145ea080f277839b89628c255017fc0e1e7c"
+  },
+  {
+    "question": "What specific pattern did the researchers observe regarding where language models perform best when relevant information is positioned in long input contexts?",
+    "ground_truth": "Performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts.",
+    "source_paper_id": "1733eb7792f7a43dd21f51f4d1017a1bffd217b5"
+  },
+  {
+    "question": "What are the two types of RAG techniques that HybridRAG combines, and how does their combination compare to using each technique individually?",
+    "ground_truth": "HybridRAG combines Knowledge Graphs (KGs) based RAG techniques (called GraphRAG) and VectorRAG techniques (which utilize vector databases for information retrieval). When evaluated on financial earning call transcripts, HybridRAG which retrieves context from both vector database and KG outperforms both traditional VectorRAG and GraphRAG individually in terms of retrieval accuracy and answer generation.",
+    "source_paper_id": "9af8bccf3e42996cbb198a6ceccafa2a084689f6"
+  },
+  {
+    "question": "How much memory does BPR reduce the passage index size compared to DPR, and on which benchmarks is this reduction evaluated?",
+    "ground_truth": "BPR reduces the memory cost from 65GB to 2GB compared to DPR without loss of accuracy, and this reduction is evaluated on two standard open-domain question answering benchmarks: Natural Questions and TriviaQA.",
+    "source_paper_id": "15493bbb5387d60e7c77cee34528acd3acae7b65"
+  },
+  {
+    "question": "What specific challenges with AIGC systems does RAG aim to address?",
+    "ground_truth": "RAG addresses challenges such as updating knowledge, handling long-tail data, mitigating data leakage, and managing high training and inference costs by introducing an information retrieval process that retrieves relevant objects from available data stores.",
+    "source_paper_id": "ab15463babf98fffc6f683fe2026de0725b5e1a9"
+  },
+  {
+    "question": "What is the average performance improvement that BAR-RAG achieves over strong RAG and reranking baselines on knowledge-intensive question answering benchmarks?",
+    "ground_truth": "BAR-RAG achieves an average gain of 10.3 percent over strong RAG and reranking baselines while substantially improving robustness under noisy retrieval.",
+    "source_paper_id": "734427369aff71d410c1125875f1363c672ba214"
+  },
+  {
+    "question": "What are the four meta-tasks covered by the MMEB benchmark?",
+    "ground_truth": "The four meta-tasks covered by MMEB are classification, visual question answering, multimodal retrieval, and visual grounding.",
+    "source_paper_id": "0812f6b841a99b6ffb4fb114c04a090de956de6e"
+  },
+  {
+    "question": "How does Visual-RAG differ from prior multimodal RAG benchmarks like MRAG-Bench in terms of what types of images it retrieves and what knowledge it requires models to extract?",
+    "ground_truth": "Visual-RAG retrieves specialized, less common images containing explicit answers within their visual contents and requires models to extract detailed visual information for knowledge-intensive reasoning, whereas MRAG-Bench retrieves more common images primarily to support entity recognition, with answers depending heavily on the model's internal prior knowledge rather than visual evidence.",
+    "source_paper_id": "f36a63f5d8dd9f97c16c8c21dc6d80aa1631c07d"
+  },
+  {
+    "question": "What specific performance metrics does G-RAG use to evaluate its reranking effectiveness?",
+    "ground_truth": "G-RAG primarily focuses on ranking task metrics, specifically Mean Tied Reciprocal Ranking and MHits@10, rather than end-to-end generation metrics like exact-match.",
+    "source_paper_id": "fb1931e9069cf8bfe11a1b8a1055ace7b526db1d"
+  },
+  {
+    "question": "What standard datasets are supported by the PyTerrier-RAG extension for evaluating RAG pipelines?",
+    "ground_truth": "The PyTerrier-RAG extension provides easy access to standard RAG datasets including Natural Questions, and can be demonstrated on these standard datasets.",
+    "source_paper_id": "305b59278381a60117d17618fa3c673f3482af45"
+  },
+  {
+    "question": "What is the citation support rate achieved by the best models on the ELI5 dataset according to the ALCE benchmark?",
+    "ground_truth": "Even the best models lack complete citation support 50% of the time on the ELI5 dataset, meaning they achieve only 50% complete citation support.",
+    "source_paper_id": "e7c97e953849f1a8e5d85ceb4cfcc0a5d54d2365"
+  },
+  {
+    "question": "How much improvement does InfoGain-RAG achieve on the NaturalQA benchmark compared to naive RAG, self-reflective RAG, and modern ranking-based RAG?",
+    "ground_truth": "On NaturalQA, InfoGain-RAG achieves improvements of 17.9%, 4.5%, and 12.5% in exact match accuracy against naive RAG, self-reflective RAG, and modern ranking-based RAG respectively.",
+    "source_paper_id": "91a3f096bd9b8061047797139e40280f8924fb77"
+  },
+  {
+    "question": "How does Iter-RetGen differ from recent methods that interleave retrieval with generation in terms of how it processes retrieved knowledge?",
+    "ground_truth": "Iter-RetGen processes all retrieved knowledge as a whole in each iteration, whereas recent interleaving methods condition intermediate generation on knowledge retrieved before without awareness of knowledge retrieved afterwards, failing to process all retrieved knowledge together during generation.",
+    "source_paper_id": "a1675f47125aa409525c5f759b5e6bcc1c8831aa"
+  },
+  {
+    "question": "What are the three primary technical perspectives that this survey covers when reviewing research studies in Retrieval-Augmented Large Language Models (RA-LLMs)?",
+    "ground_truth": "The excerpt states that the survey comprehensively reviews existing research studies in RA-LLMs, covering three primary technical perspectives, but does not specify what these three perspectives are in the provided excerpt.",
+    "source_paper_id": "eb9c4a07a336e8deefe7b399c550d3af0241238e"
+  },
+  {
+    "question": "What is the text compression rate that CLaRa achieves while still outperforming text-based fine-tuned baselines?",
+    "ground_truth": "CLaRa achieves state-of-the-art compression and reranking performance at a text compression rate of 16, outperforming text-based fine-tuned baselines.",
+    "source_paper_id": "e33db0c00b54b2b8810ac8903d1968f96d683766"
+  },
+  {
+    "question": "How does CFRAG address the challenge of incorporating collaborative information from similar users without having explicit user similarity labels?",
+    "ground_truth": "CFRAG uses contrastive learning to train user embeddings to retrieve similar users and introduce collaborative information, addressing the lack of explicit user similarity labels.",
+    "source_paper_id": "57d3d4f8ba3b9fb9c265ed41b364136c98160be3"
+  },
+  {
+    "question": "What is the key difference between the In-Context RALM approach proposed in this paper and existing RALM methods?",
+    "ground_truth": "In-Context RALM leaves the language model architecture unchanged and simply prepends grounding documents to the input without any further training of the LM, whereas existing RALM approaches focus on modifying the LM architecture to facilitate incorporation of external information, significantly complicating deployment.",
+    "source_paper_id": "465471bb5bf1a945549d6291c2d23367966b4957"
+  },
+  {
+    "question": "What is the key innovation of RankRAG compared to using separate ranking models in traditional RAG pipelines?",
+    "ground_truth": "RankRAG instruction-tunes a single LLM for both context ranking and answer generation, and surprisingly outperforms existing expert ranking models by adding only a small fraction of ranking data into the training blend, while avoiding the limited zero-shot generalization capability of separate ranking models.",
+    "source_paper_id": "80478de9c7a81561e2f3dac9b8b1ef3df389ff2d"
+  },
+  {
+    "question": "How does FLARE decide when to retrieve information during the generation process?",
+    "ground_truth": "FLARE iteratively generates a temporary next sentence and checks whether it contains low-confidence tokens; if it does, the system retrieves relevant documents and regenerates the sentence using those documents as context.",
+    "source_paper_id": "88884b8806262a4095036041e3567d450dba39f7"
+  },
+  {
+    "question": "What are the four main types of retrieval fusion methods introduced in this paper's taxonomy?",
+    "ground_truth": "The paper introduces a novel taxonomy of retrieval fusions consisting of query-based, logits-based, latent, and parametric fusion approaches.",
+    "source_paper_id": "d4a5c2ab2b459426869e1a3ab1550897b005303e"
+  },
+  {
+    "question": "What is the performance difference between ChatQA-1.0-70B and GPT-4-Turbo-2024-04-09 on the ChatRAG Bench?",
+    "ground_truth": "ChatQA-1.0-70B achieves a score of 54.14 on ChatRAG Bench, slightly outperforming GPT-4-Turbo-2024-04-09 which scores 54.03. The Llama3-ChatQA-1.5-70B model further improves upon this, surpassing GPT-4-Turbo with a 4.4% improvement in accuracy.",
+    "source_paper_id": "fa21931a9b23a7f0b7c4975a661d9ccc8e84d059"
+  },
+  {
+    "question": "What are the three main stages that compose the GraphRAG workflow as formalized in this survey?",
+    "ground_truth": "The GraphRAG workflow encompasses Graph-Based Indexing, Graph-Guided Retrieval, and Graph-Enhanced Generation.",
+    "source_paper_id": "9ab45aa875b56335303398e84a59a3756cd9d530"
+  },
+  {
+    "question": "How many document pages and queries are included in the ViDoRe v3 benchmark, and how many languages does it support?",
+    "ground_truth": "ViDoRe v3 comprises approximately 26,000 document pages paired with 3,099 human-verified queries, available in 6 languages across 10 datasets.",
+    "source_paper_id": "418c8ab0e57c56826ccdf154ee0483db0ed9a36f"
+  },
+  {
+    "question": "How does the paper's adaptive QA framework determine which strategy to use for different queries?",
+    "ground_truth": "The framework uses a classifier, which is a smaller LM trained to predict the complexity level of incoming queries with automatically collected labels obtained from actual predicted outcomes of models and inherent inductive biases in datasets, to dynamically select the most suitable strategy from no-retrieval methods to single-step and iterative retrieval-augmented LLMs.",
+    "source_paper_id": "e5e8c6ac537e0f5b5db14170bc232d6f9e641bbc"
+  },
+  {
+    "question": "What are the three building blocks that AgenticOCR is designed to work alongside in visual document RAG systems?",
+    "ground_truth": "According to the paper, AgenticOCR serves as the 'third building block' of the visual document RAG stack, operating alongside Embedding and Reranking modules.",
+    "source_paper_id": "07102592576dfc50c91c0f066669666cddb78d79"
+  },
+  {
+    "question": "What is the size of the retrieval units that LongRAG uses for Wikipedia-based datasets, and how does this compare to traditional RAG approaches?",
+    "ground_truth": "LongRAG processes Wikipedia corpus into 4K-token units by grouping related documents, which is approximately 30x longer than the traditional RAG approach that uses 100-word passages. This larger unit size significantly reduces the total number of units to search through.",
+    "source_paper_id": "9e015a8524261d4c040c10fa773ddbb02a49ee38"
+  },
+  {
+    "question": "By how many points did Meta-Harness improve over the state-of-the-art context management system on online text classification, and what was the reduction in context tokens used?",
+    "ground_truth": "Meta-Harness improved over the state-of-the-art context management system by 7.7 points while using 4x fewer context tokens on online text classification.",
+    "source_paper_id": "64cd8a551607d5d004e37bb0c6cbd6d65241fbfb"
+  },
+  {
+    "question": "How does using a small, well-trained retriever encoder in the RAG system contribute to reducing computational requirements for LLM deployment?",
+    "ground_truth": "According to the paper, using a small, well-trained retriever encoder can reduce the size of the accompanying LLM, thereby making deployments of LLM-based systems less resource-intensive.",
+    "source_paper_id": "2986b2b06173e065c94bae49c7a9a3718dad486c"
+  },
+  {
+    "question": "By what margin does the proposed dense retriever outperform BM25 in terms of top-20 passage retrieval accuracy?",
+    "ground_truth": "The dense retriever outperforms BM25 by 9%-19% absolute in terms of top-20 passage retrieval accuracy when evaluated on a wide range of open-domain QA datasets.",
+    "source_paper_id": "b26f2037f769d5ffc5f7bdcec2de8da28ec14bee"
+  },
+  {
+    "question": "Which retrieval strategy achieved the best overall performance in this biomedical QA evaluation, and what was its composite score?",
+    "ground_truth": "Cross-Encoder Reranking achieved the best composite score of 0.827 and also achieved the highest contextual precision at 0.852 in the evaluation on the BioASQ benchmark.",
+    "source_paper_id": "c33f0d5f6b31fb75eff36da1f8ba803bc7c904c5"
+  },
+  {
+    "question": "According to the paper, what are the five main IR components that the survey examines for integration with LLMs?",
+    "ground_truth": "The survey focuses on five crucial aspects: query rewriters, retrievers, rerankers, readers, and search agents. Additionally, LLMs can be used to enhance these traditional IR components or function as search agents to perform multiple IR tasks.",
+    "source_paper_id": "0b220041eb83c23b7b10d32a5d08c0309d528071"
+  },
+  {
+    "question": "What are the three complementary dimensions along which the survey organizes RL-based agentic search?",
+    "ground_truth": "The survey organizes RL-based agentic search along three dimensions: (i) What RL is for (functional roles), (ii) How RL is used (optimization strategies), and (iii) Where RL is applied (scope of optimization).",
+    "source_paper_id": "2cc298e6305b96320633a3b3b83de8e3fa8c7411"
+  },
+  {
+    "question": "How many possible configuration combinations does Rankify support compared to existing toolkits like FlashRAG and AutoRAG?",
+    "ground_truth": "Rankify supports 20,160 possible configurations (calculated as 40 datasets × 7 retrievers × 24 re-rankers × 3 RAG methods), which is significantly larger than FlashRAG's 2,304 combinations and AutoRAG's 56 combinations.",
+    "source_paper_id": "4eccf856091bb761bb4b46ce5b519f2172e73013"
+  },
+  {
+    "question": "What retrieval method consistently achieved the best performance across all four datasets evaluated in the EncouRAGe framework?",
+    "ground_truth": "Hybrid BM25 consistently achieves the best results across all four datasets, outperforming standard RAG systems.",
+    "source_paper_id": "8d70e6cb41b9b1725a071cfb4acd6fe353e0087c"
+  }
+]

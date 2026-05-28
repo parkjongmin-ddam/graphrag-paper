@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+
+# 대용량 원본은 추적 제외 (.gitkeep으로 폴더만 유지)
+data/raw/*
+!data/raw/.gitkeep
+
+# 재생성 가능한 대용량 바이너리 인덱스 (vector_index 스테이지로 재빌드)
+data/vector/
+
+# 테스트 캐시
+.pytest_cache/

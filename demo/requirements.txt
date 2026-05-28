@@ -1,0 +1,3 @@
+# Streamlit demo extras (assumes the project's main requirements.txt is already
+# installed). Kept separate so the core pipeline does not pull in streamlit.
+streamlit>=1.36

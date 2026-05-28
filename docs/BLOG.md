@@ -89,6 +89,8 @@ Or read the [Markdown report](https://github.com/parkjongmin-ddam/graphrag-paper
 
 *Code, paper, and eval artifacts: <https://github.com/parkjongmin-ddam/graphrag-paper>. MIT licensed. Issues and PRs welcome.*
 
+*Draft refined with AI assistance; the experiments, code, and analysis are my own.*
+
 ---
 
 ## Publishing notes (for the author, remove before posting)

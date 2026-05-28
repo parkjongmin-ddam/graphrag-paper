@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Tests run fully offline: every LLM call site is monkey-patched, and the
+      # one network-touching stage (eval) is verified to SKIP when ANTHROPIC_API_KEY
+      # is absent (see test_eval_stage_gates_on_anthropic_key). No secrets needed.
+      - name: Run pytest
+        run: python -m pytest -q

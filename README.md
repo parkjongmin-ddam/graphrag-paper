@@ -1,6 +1,8 @@
 # graphrag-paper
 
 [![Repo](https://img.shields.io/badge/GitHub-parkjongmin--ddam%2Fgraphrag--paper-181717?logo=github)](https://github.com/parkjongmin-ddam/graphrag-paper)
+[![CI](https://img.shields.io/github/actions/workflow/status/parkjongmin-ddam/graphrag-paper/ci.yml?label=CI&logo=github)](https://github.com/parkjongmin-ddam/graphrag-paper/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Last commit](https://img.shields.io/github/last-commit/parkjongmin-ddam/graphrag-paper)](https://github.com/parkjongmin-ddam/graphrag-paper/commits/main)
 [![Report](https://img.shields.io/badge/%F0%9F%93%84_report-docs%2FPAPER.md-2f6fec)](docs/PAPER.md)

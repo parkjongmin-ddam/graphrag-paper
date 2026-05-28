@@ -61,9 +61,12 @@ Raising the cap to 8000 cut failures from ~50% to ~1% and grew the graph from 50
 
 The general lesson: for any LLM-as-structured-extractor, **validate parse-success rate**, not just that the pipeline ran end-to-end. A silent zero is worse than a loud error.
 
+## Cross-checking with a second judge
+
+A common worry with LLM-as-judge: the judge shares a family with the model under test. To check, I held the answers and contexts fixed and re-scored everything with **OpenAI gpt-4o-mini** (different family entirely). All four metrics keep their sign — *agent ≫ baseline* is judge-robust. Answer relevancy is the most consistent across judges (Δ +0.576 vs +0.544 — ~5% spread). Context-metric magnitudes shrink under OpenAI because it's more generous to the baseline's retrieval, but the agent advantage stays large (+0.45 recall, +0.32 precision). Notably, OpenAI rates the agent *higher* than Claude does on context metrics and faithfulness — no Claude self-preference on the agent side. Detail and per-metric numbers in §6.2 of the paper; reproduce via `python -m eval.judge_ablation`.
+
 ## What I'd do next
 
-- **Second judge** (a non-Claude model) to control for self-preference bias.
 - **Human-authored question subset** to control for synthetic-question convenience.
 - **Larger reranker** (`BAAI/bge-reranker-base`, 1 GB) — would test whether the precision/recall trade-off shifts at higher rerank capacity.
 - Probably *not* "more agentic loops" — adding more retries/reflection rounds hit diminishing returns fast in earlier milestones; one bounded retry per conditional is the sweet spot.
